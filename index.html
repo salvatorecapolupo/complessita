@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="it" class="h-full bg-slate-900 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guida Interattiva alle Classi di Complessità Computazionale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            900: '#0c4a6e',
+                        },
+                        classP: '#10b981',
+                        classPComp: '#06b6d4',
+                        classNP: '#f59e0b',
+                        classNPHard: '#ef4444'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar and smooth transitions */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .tab-btn.active {
+            border-color: #38bdf8;
+            color: #38bdf8;
+            background-color: rgba(56, 189, 248, 0.1);
+        }
+        canvas {
+            touch-action: none;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased selection:bg-sky-500 selection:text-white">
+
+    <!-- Top Navigation / Header -->
+    <header class="bg-slate-950 border-b border-slate-800 px-4 py-3 sticky top-0 z-50 flex flex-wrap justify-between items-center shadow-lg">
+        <div class="flex items-center space-x-3">
+            <div class="p-2 bg-gradient-to-tr from-sky-500 to-indigo-600 rounded-xl text-white shadow-md">
+                <i class="fa-solid fa-brain text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg text-slate-100 tracking-wide">Complessità Computazionale</h1>
+                <p class="text-xs text-slate-400">Dai concetti base a P, P-Completo, NP e NP-Hard</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2 text-xs">
+            <span class="px-2.5 py-1 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-800/50">P: Facili</span>
+            <span class="px-2.5 py-1 rounded-full bg-cyan-950/80 text-cyan-400 border border-cyan-800/50">P-Comp: Sequenziali</span>
+            <span class="px-2.5 py-1 rounded-full bg-amber-950/80 text-amber-400 border border-amber-800/50">NP: Verificabili</span>
+            <span class="px-2.5 py-1 rounded-full bg-rose-950/80 text-rose-400 border border-rose-800/50">NP-Hard: Impossibili?</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+
+        <!-- Navigation Sidebar -->
+        <aside class="w-full md:w-64 bg-slate-950/70 border-r border-slate-800 flex-shrink-0 p-3 overflow-y-auto">
+            <nav class="space-y-1">
+                <button onclick="switchTab('tab-intro')" id="btn-intro" class="tab-btn active w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition border-l-4 border-transparent text-left">
+                    <i class="fa-solid fa-graduation-cap w-5 text-sky-400"></i>
+                    <span>0. Cos'è un Algoritmo?</span>
+                </button>
+                <button onclick="switchTab('tab-p')" id="btn-p" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition border-l-4 border-transparent text-left">
+                    <i class="fa-solid fa-bolt w-5 text-emerald-400"></i>
+                    <span>1. Classe P (I Facili)</span>
+                </button>
+                <button onclick="switchTab('tab-pcomplete')" id="btn-pcomplete" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition border-l-4 border-transparent text-left">
+                    <i class="fa-solid fa-diagram-next w-5 text-cyan-400"></i>
+                    <span>2. Classe P-Completo</span>
+                </button>
+                <button onclick="switchTab('tab-np')" id="btn-np" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition border-l-4 border-transparent text-left">
+                    <i class="fa-solid fa-key w-5 text-amber-400"></i>
+                    <span>3. Classe NP (Verifica)</span>
+                </button>
+                <button onclick="switchTab('tab-nphard')" id="btn-nphard" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition border-l-4 border-transparent text-left">
+                    <i class="fa-solid fa-fire w-5 text-rose-400"></i>
+                    <span>4. NP-Hard & NP-Completo</span>
+                </button>
+                <button onclick="switchTab('tab-summary')" id="btn-summary" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition border-l-4 border-transparent text-left">
+                    <i class="fa-solid fa-layer-group w-5 text-purple-400"></i>
+                    <span>5. Mappa delle Classi</span>
+                </button>
+            </nav>
+
+            <div class="mt-8 p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-xs text-slate-400 space-y-2">
+                <div class="font-semibold text-slate-200 flex items-center space-x-1">
+                    <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                    <span>Guida veloce</span>
+                </div>
+                <p>Usa il menu in alto o laterale per esplorare le classi. In ogni modulo troverai un'animazione controllabile con i pulsanti <b>Play</b>, <b>Pausa</b>, e <b>Passo Singolo</b>!</p>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="flex-1 bg-slate-900 overflow-y-auto p-4 md:p-8">
+            
+            <!-- ================= SEZIONE 0: INTRODUZIONE ================= -->
+            <section id="tab-intro" class="tab-content space-y-6">
+                <div class="border-b border-slate-800 pb-4">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-sky-400">Modulo 0</span>
+                    <h2 class="text-2xl font-extrabold text-white mt-1">Cos'è un Algoritmo e la "Complessità"?</h2>
+                    <p class="text-slate-300 mt-2">Capire l'informatica teorica senza saper programmare.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3 shadow-md">
+                        <div class="w-10 h-10 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-lg">
+                            <i class="fa-solid fa-utensils"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">L'Algoritmo: Una Ricetta di Cucina</h3>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            Un <b>algoritmo</b> non è altro che una lista ordinata di istruzioni precise passo-passo per risolvere un problema.
+                        </p>
+                        <p class="text-sm text-slate-400 leading-relaxed">
+                            <i>Esempio:</i> "Per fare un caffè: 1) Metti l'acqua, 2) Metti il caffè nel filtro, 3) Chiudi la moka, 4) Accendi il fuoco." Se segui le istruzioni nell'ordine giusto, ottieni il risultato garantito!
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3 shadow-md">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Cos'è la "Complessità"?</h3>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            Non ci interessa solo *se* un computer sa risolvere un problema, ma **quanto tempo impiega al crescere della dimensione dei dati (N)**.
+                        </p>
+                        <p class="text-sm text-slate-400 leading-relaxed">
+                            Se devi ordinare <b>5 carte</b> ci metti 2 secondi. Se devi ordinare <b>5.000 carte</b>, quanti passaggi servono? L'aumento del lavoro al crescere dell'input si chiama <b>Complessità Computazionale</b>.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Simulation/Chart of Growth -->
+                <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-white">L'Esplosione del Calcolo: Guarda le Curve di Crescita</h3>
+                            <p class="text-xs text-slate-400">Muovi lo slider per aumentare la quantità di dati (N) e guarda come esplodono i passaggi richiesti!</p>
+                        </div>
+                        <div class="flex items-center space-x-3 bg-slate-900 px-4 py-2 rounded-xl border border-slate-800">
+                            <label for="intro-n-slider" class="text-xs font-semibold text-slate-300">Dimensione Input (N): <span id="intro-n-val" class="text-sky-400 font-bold">10</span></label>
+                            <input type="range" id="intro-n-slider" min="1" max="20" value="10" class="accent-sky-500 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                        <div class="bg-slate-900 p-3 rounded-xl border border-emerald-900/50">
+                            <div class="text-xs text-emerald-400 font-bold uppercase">Lineare $O(N)$</div>
+                            <div id="val-linear" class="text-xl font-bold text-slate-100 mt-1">10</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">Istantaneo</div>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-cyan-900/50">
+                            <div class="text-xs text-cyan-400 font-bold uppercase">Quadratico $O(N^2)$</div>
+                            <div id="val-quadratic" class="text-xl font-bold text-slate-100 mt-1">100</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">Frazione di secondo</div>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-amber-900/50">
+                            <div class="text-xs text-amber-400 font-bold uppercase">Esponenziale $2^N$</div>
+                            <div id="val-exponential" class="text-xl font-bold text-slate-100 mt-1">1,024</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">Gestibile solo se N è piccolo</div>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-rose-900/50">
+                            <div class="text-xs text-rose-400 font-bold uppercase">Fattoriale $N!$</div>
+                            <div id="val-factorial" class="text-xl font-bold text-slate-100 mt-1">3,628,800</div>
+                            <div id="desc-factorial" class="text-[10px] text-rose-400 mt-0.5 font-semibold">Miliardi di anni se N>20!</div>
+                        </div>
+                    </div>
+
+                    <div class="h-56 relative w-full bg-slate-900 rounded-xl p-2 border border-slate-800">
+                        <canvas id="introChart" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SEZIONE 1: CLASSE P ================= -->
+            <section id="tab-p" class="tab-content hidden space-y-6">
+                <div class="border-b border-slate-800 pb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Classe P</span>
+                        <span class="text-xs text-slate-400">Polynomial Time</span>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-white mt-1">Classe P: I Problemi "Facili" (Trattabili)</h2>
+                    <p class="text-slate-300 mt-1">Problemi risolvibili in un tempo ragionevole (polinomiale, es. $N$, $N^2$, $N^3$) anche per milioni di dati.</p>
+                </div>
+
+                <!-- Explanation Box -->
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-start space-x-4">
+                    <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl flex-shrink-0 text-xl">
+                        <i class="fa-solid fa-arrow-down-short-wide"></i>
+                    </div>
+                    <div class="space-y-1 text-sm">
+                        <h4 class="font-bold text-white">Esempio Pratico: Ordinare una lista di numeri o un mazzo di carte</h4>
+                        <p class="text-slate-300">
+                            Se hai 10 carte disordinate, puoi metterle in ordine confrontandole a coppie. Anche se il mazzo cresce fino a 1.000 carte, il computer ci impiegherà una frazione di secondo (tempo $O(N^2)$ o $O(N \log N)$).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Interactive Demo: Bubble Sort Animation -->
+                <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Dimostrazione: Ordinamento (Bubble Sort)</h3>
+                            <p class="text-xs text-slate-400">Guarda come l'algoritmo riordina le barre da sinistra a destra una coppia alla volta.</p>
+                        </div>
+                        <!-- Controls -->
+                        <div class="flex items-center space-x-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
+                            <button id="p-play-btn" onclick="togglePlayP()" class="p-2 w-10 h-10 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-play"></i>
+                            </button>
+                            <button onclick="stepP()" class="p-2 w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition flex items-center justify-center font-bold" title="Passo Singolo">
+                                <i class="fa-solid fa-step-forward"></i>
+                            </button>
+                            <button onclick="resetP()" class="p-2 w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition flex items-center justify-center font-bold" title="Reset">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Visualizer -->
+                    <div class="h-64 w-full bg-slate-900 rounded-xl p-4 border border-slate-800 relative flex flex-col justify-end">
+                        <div id="p-bars-container" class="w-full h-full flex items-end justify-between gap-1 sm:gap-2">
+                            <!-- Bars generated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Stats & Speed Control -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 text-xs text-slate-400 bg-slate-900 p-3 rounded-xl border border-slate-800">
+                        <div class="flex space-x-4">
+                            <span>Confronti effettuati: <strong id="p-comparisons" class="text-emerald-400 font-mono text-sm">0</strong></span>
+                            <span>Scambi: <strong id="p-swaps" class="text-emerald-400 font-mono text-sm">0</strong></span>
+                            <span>Stato: <strong id="p-status" class="text-slate-200">Pronto</strong></span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span>Velocità:</span>
+                            <input type="range" id="p-speed" min="20" max="500" value="200" class="accent-emerald-500 cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SEZIONE 2: CLASSE P-COMPLETO ================= -->
+            <section id="tab-pcomplete" class="tab-content hidden space-y-6">
+                <div class="border-b border-slate-800 pb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Classe P-Completo</span>
+                        <span class="text-xs text-slate-400">I più difficili tra i facili (Inerentemente Sequenziali)</span>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-white mt-1">Classe P-Completo: Il Muro del Parallelo</h2>
+                    <p class="text-slate-300 mt-1">Sono problemi della classe P che **non si possono velocizzare dividendo il lavoro su 1.000 computer**. Bisogna eseguirli un passo per volta.</p>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-start space-x-4">
+                    <div class="p-3 bg-cyan-500/10 text-cyan-400 rounded-xl flex-shrink-0 text-xl">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <div class="space-y-1 text-sm">
+                        <h4 class="font-bold text-white">Metafora: La catena di montaggio e il valore di un circuito logico (CVP)</h4>
+                        <p class="text-slate-300">
+                            Immagina una fila di ingranaggi: l'ingranaggio C può girare solo dopo che B ha girato, e B solo dopo A. Anche se mandi 100 operai, 99 dovranno rimanere in attesa che il primo finisca!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Interactive Demo: Circuit Value Problem -->
+                <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Propagazione in un Circuito Logico (Circuit Value Problem)</h3>
+                            <p class="text-xs text-slate-400">Clicca sui segnali d'ingresso (IN 1, IN 2...) per cambiare VERO/FALSO e avvia la propagazione sequenziale.</p>
+                        </div>
+                        <div class="flex items-center space-x-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
+                            <button id="cvp-play-btn" onclick="togglePlayCVP()" class="p-2 w-10 h-10 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg transition flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-play"></i>
+                            </button>
+                            <button onclick="stepCVP()" class="p-2 w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition flex items-center justify-center font-bold" title="Passo Singolo">
+                                <i class="fa-solid fa-step-forward"></i>
+                            </button>
+                            <button onclick="resetCVP()" class="p-2 w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition flex items-center justify-center font-bold" title="Reset">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Canvas for Gate Diagram -->
+                    <div class="h-80 w-full bg-slate-900 rounded-xl p-2 border border-slate-800 relative">
+                        <canvas id="cvpCanvas" class="w-full h-full"></canvas>
+                    </div>
+
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs text-slate-300 flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <span>Passo Corrente: <b id="cvp-step-text" class="text-cyan-400">0 / 3</b></span>
+                            <span class="ml-4">Stato Output Finale: <b id="cvp-output-text" class="text-slate-400">In attesa...</b></span>
+                        </div>
+                        <div class="text-slate-400">
+                            <i>Ogni livello (Layer) dipenderà strettamente dal livello precedente!</i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SEZIONE 3: CLASSE NP ================= -->
+            <section id="tab-np" class="tab-content hidden space-y-6">
+                <div class="border-b border-slate-800 pb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">Classe NP</span>
+                        <span class="text-xs text-slate-400">Nondeterministic Polynomial Time</span>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-white mt-1">Classe NP: Difficile da Trovare, Facile da Verificare!</h2>
+                    <p class="text-slate-300 mt-1">Non sappiamo se sia facile *trovare* la soluzione da zero, ma se qualcuno ci propone un tentativo, possiamo **verificare in un attimo** se è corretto.</p>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-start space-x-4">
+                    <div class="p-3 bg-amber-500/10 text-amber-400 rounded-xl flex-shrink-0 text-xl">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <div class="space-y-1 text-sm">
+                        <h4 class="font-bold text-white">Metafora: Il Sudoku o il Lucchetto a Combinazione</h4>
+                        <p class="text-slate-300">
+                            Risolvere un Sudoku diabolico può richiedere ore. Ma se il tuo amico ti mostra la griglia completata, ti bastano pochi secondi per controllare che non ci siano numeri ripetuti in nessuna riga o colonna!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Interactive Demo: Graph Coloring -->
+                <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Dimostrazione: Colorazione Grafo (Graph Coloring)</h3>
+                            <p class="text-xs text-slate-400">Colora i nodi del grafo in modo che due nodi collegati non abbiano mai lo stesso colore!</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="setNPMode('search')" id="np-btn-search" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 text-white shadow">
+                                <i class="fa-solid fa-magnifying-glass mr-1"></i> Ricerca (Tentativi ciechi)
+                            </button>
+                            <button onclick="setNPMode('verify')" id="np-btn-verify" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">
+                                <i class="fa-solid fa-check-double mr-1"></i> Modalità Verifica Istantanea
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Graph Coloring -->
+                    <div class="h-80 w-full bg-slate-900 rounded-xl p-2 border border-slate-800 relative flex items-center justify-center">
+                        <canvas id="npCanvas" class="w-full h-full cursor-pointer"></canvas>
+                        
+                        <!-- Verification Overlay Notification -->
+                        <div id="np-verify-badge" class="absolute top-4 right-4 hidden px-4 py-2 rounded-xl text-xs font-bold shadow-lg transition-all"></div>
+                    </div>
+
+                    <!-- Control instructions -->
+                    <div id="np-controls-search" class="flex flex-wrap items-center justify-between gap-3 bg-slate-900 p-3 rounded-xl border border-slate-800 text-xs">
+                        <div class="flex items-center space-x-2">
+                            <button id="np-play-btn" onclick="togglePlayNP()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold flex items-center">
+                                <i class="fa-solid fa-play mr-1.5"></i> Cerca Soluzione
+                            </button>
+                            <button onclick="resetNP()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg">
+                                Reset
+                            </button>
+                        </div>
+                        <div class="text-slate-400">
+                            Tentativi provati: <b id="np-tries-count" class="text-amber-400 font-mono">0</b>
+                        </div>
+                    </div>
+
+                    <div id="np-controls-verify" class="hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-900 p-3 rounded-xl border border-slate-800 text-xs">
+                        <p class="text-slate-300">
+                            <b>Clicca sui nodi del grafo</b> per cambiare il loro colore (Rosso, Verde, Blu), poi clicca su "Verifica".
+                        </p>
+                        <button onclick="verifyUserColoring()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg shadow-md flex items-center self-end sm:self-auto">
+                            <i class="fa-solid fa-circle-check mr-2"></i> Verifica subito! ($O(N)$)
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SEZIONE 4: NP-HARD & NP-COMPLETE ================= -->
+            <section id="tab-nphard" class="tab-content hidden space-y-6">
+                <div class="border-b border-slate-800 pb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">NP-Hard & NP-Completo</span>
+                        <span class="text-xs text-slate-400">L'Esplosione Combinatoria</span>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-white mt-1">NP-Hard e NP-Completo: Il Muro della Complessità</h2>
+                    <p class="text-slate-300 mt-1">I problemi più difficili in assoluto. Risolverli esattamente richiede di testare così tante combinazioni ($N!$ o $2^N$) che un supercomputer ci impiegherebbe **miliardi di anni**.</p>
+                </div>
+
+                <!-- Concept Card -->
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-start space-x-4">
+                    <div class="p-3 bg-rose-500/10 text-rose-400 rounded-xl flex-shrink-0 text-xl">
+                        <i class="fa-solid fa-route"></i>
+                    </div>
+                    <div class="space-y-1 text-sm">
+                        <h4 class="font-bold text-white">Esempio Classico: Il Commesso Viaggiatore (TSP - Traveling Salesperson Problem)</h4>
+                        <p class="text-slate-300">
+                            Un corriere deve visitare $N$ città e tornare al punto di partenza percorrendo il **minor numero di chilometri totale**. Con 5 città ci sono 12 percorsi possibili. Con 20 città ci sono **2.432.902.008.176.640.000** percorsi!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Interactive TSP Canvas -->
+                <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Mappa delle Città del Commesso Viaggiatore</h3>
+                            <p class="text-xs text-slate-400">Clicca sulla mappa per aggiungere città o genera un preset, poi confronta i metodi!</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="generateRandomCities(6)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 rounded-lg">6 Città</button>
+                            <button onclick="generateRandomCities(10)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 rounded-lg">10 Città</button>
+                            <button onclick="generateRandomCities(14)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 rounded-lg">14 Città</button>
+                            <button onclick="clearTSP()" class="px-3 py-1.5 bg-rose-950/80 hover:bg-rose-900 text-xs text-rose-300 rounded-lg border border-rose-800">Pulisci</button>
+                        </div>
+                    </div>
+
+                    <!-- Canvas -->
+                    <div class="h-80 w-full bg-slate-900 rounded-xl p-2 border border-slate-800 relative">
+                        <canvas id="tspCanvas" class="w-full h-full cursor-crosshair"></canvas>
+                    </div>
+
+                    <!-- Stats & Methods -->
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2 text-xs">
+                            <div class="font-bold text-slate-200 flex justify-between">
+                                <span>Città Totali (N): <b id="tsp-count" class="text-rose-400">0</b></span>
+                                <span>Percorsi possibili: <b id="tsp-routes" class="text-amber-400 font-mono">0</b></span>
+                            </div>
+                            <div class="text-slate-400">
+                                Tempo stimato a 1 miliardo di controlli al sec:
+                                <div id="tsp-time-estimate" class="text-rose-400 font-bold text-sm mt-0.5">0 secondi</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex flex-col justify-between space-y-2">
+                            <div class="text-xs text-slate-300">
+                                <b>Scegli un approccio per calcolare il percorso:</b>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="solveTSPBruteForce()" class="flex-1 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-lg transition shadow">
+                                    <i class="fa-solid fa-skull-crossbones mr-1"></i> Forza Bruta (Esatto $N!$)
+                                </button>
+                                <button onclick="solveTSPHeuristic()" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg transition shadow">
+                                    <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Euristica (Aprossimato $O(N^2)$)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SEZIONE 5: MAPPA E DIAGRAMMA DI VENN ================= -->
+            <section id="tab-summary" class="tab-content hidden space-y-6">
+                <div class="border-b border-slate-800 pb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">Mappa Finale</span>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-white mt-1">Diagramma delle Classi di Complessità</h2>
+                    <p class="text-slate-300 mt-1">Come si collegano P, P-Completo, NP, NP-Completo e NP-Hard tra di loro? Esplora la mappa!</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Euler/Venn Interactive SVG Map -->
+                    <div class="md:col-span-2 bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col items-center justify-center min-h-[340px]">
+                        <svg viewBox="0 0 500 350" class="w-full max-w-lg h-auto">
+                            <!-- NP-Hard Outer Region -->
+                            <path d="M 200,20 C 380,20 480,100 480,220 C 480,330 380,340 200,340 C 50,340 20,250 20,180 C 20,80 80,20 200,20 Z" 
+                                  fill="#ef4444" fill-opacity="0.1" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 4"
+                                  class="hover:fill-opacity-20 cursor-pointer transition" onclick="showVennInfo('nphard')"/>
+                            <text x="370" y="70" fill="#ef4444" font-weight="bold" font-size="14">NP-Hard</text>
+
+                            <!-- NP Region -->
+                            <ellipse cx="210" cy="200" rx="170" ry="120" 
+                                     fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="2"
+                                     class="hover:fill-opacity-25 cursor-pointer transition" onclick="showVennInfo('np')"/>
+                            <text x="120" y="110" fill="#f59e0b" font-weight="bold" font-size="16">Classe NP</text>
+
+                            <!-- NP-Complete Intersection -->
+                            <ellipse cx="270" cy="180" rx="80" ry="60" 
+                                     fill="#ec4899" fill-opacity="0.25" stroke="#ec4899" stroke-width="2"
+                                     class="hover:fill-opacity-40 cursor-pointer transition" onclick="showVennInfo('npcomplete')"/>
+                            <text x="220" y="185" fill="#f472b6" font-weight="bold" font-size="13">NP-Completo</text>
+
+                            <!-- P Region inside NP -->
+                            <ellipse cx="140" cy="220" rx="80" ry="60" 
+                                     fill="#10b981" fill-opacity="0.25" stroke="#10b981" stroke-width="2"
+                                     class="hover:fill-opacity-40 cursor-pointer transition" onclick="showVennInfo('p')"/>
+                            <text x="120" y="215" fill="#34d399" font-weight="bold" font-size="14">Classe P</text>
+
+                            <!-- P-Complete Region inside P -->
+                            <ellipse cx="130" cy="240" rx="40" ry="25" 
+                                     fill="#06b6d4" fill-opacity="0.35" stroke="#06b6d4" stroke-width="2"
+                                     class="hover:fill-opacity-60 cursor-pointer transition" onclick="showVennInfo('pcomplete')"/>
+                            <text x="102" y="244" fill="#67e8f9" font-weight="bold" font-size="10">P-Completo</text>
+                        </svg>
+                        <p class="text-xs text-slate-400 mt-2">Clicca su una regione del grafico per leggerne la spiegazione dettagliata.</p>
+                    </div>
+
+                    <!-- Dynamic Details Info Box -->
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center space-x-2 mb-2">
+                                <div id="venn-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-500/20 text-sky-400 border border-sky-500/30">
+                                    Seleziona una classe
+                                </div>
+                            </div>
+                            <h3 id="venn-title" class="text-lg font-bold text-white">Mappa concettuale P vs NP</h3>
+                            <p id="venn-desc" class="text-sm text-slate-300 mt-2 leading-relaxed">
+                                Clicca sulle varie aree colorate nell'immagine a sinistra per scoprire come si colloca ogni categoria e la famosa domanda milionaria: <b>"P è uguale a NP?"</b>.
+                            </p>
+                        </div>
+
+                        <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs text-slate-400">
+                            <b class="text-amber-400">Premio Millennium da 1 Milione di $:</b> Se qualcuno dimostrasse che P = NP, la crittografia di internet crollerebbe in un istante!
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        /* ================= NAVIGATION LOGIC ================= */
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            const targetContent = document.getElementById(tabId);
+            if(targetContent) targetContent.classList.remove('hidden');
+
+            const targetBtn = document.getElementById('btn-' + tabId.replace('tab-', ''));
+            if(targetBtn) targetBtn.classList.add('active');
+
+            // Resize canvases on tab switch
+            setTimeout(() => {
+                resizeCanvases();
+            }, 50);
+        }
+
+        /* ================= MODULE 0: COMPLEXITY GRAPH ================= */
+        const introSlider = document.getElementById('intro-n-slider');
+        const introNVal = document.getElementById('intro-n-val');
+        let introChartCanvas = document.getElementById('introChart');
+        let introCtx = introChartCanvas.getContext('2d');
+
+        function updateIntroChart() {
+            const N = parseInt(introSlider.value);
+            introNVal.innerText = N;
+
+            document.getElementById('val-linear').innerText = N;
+            document.getElementById('val-quadratic').innerText = (N * N).toLocaleString();
+            document.getElementById('val-exponential').innerText = Math.pow(2, N).toLocaleString();
+            
+            // Factorial calculation
+            let fact = 1;
+            for(let i=1; i<=N; i++) fact *= i;
+            document.getElementById('val-factorial').innerText = fact > 1e12 ? fact.toExponential(3) : fact.toLocaleString();
+
+            // Render canvas chart
+            const width = introChartCanvas.width = introChartCanvas.parentElement.clientWidth;
+            const height = introChartCanvas.height = introChartCanvas.parentElement.clientHeight;
+
+            introCtx.clearRect(0, 0, width, height);
+
+            // Draw axes
+            introCtx.strokeStyle = '#334155';
+            introCtx.lineWidth = 1;
+            introCtx.beginPath();
+            introCtx.moveTo(40, 10);
+            introCtx.lineTo(40, height - 30);
+            introCtx.lineTo(width - 10, height - 30);
+            introCtx.stroke();
+
+            // Labels
+            introCtx.fillStyle = '#94a3b8';
+            introCtx.font = '10px sans-serif';
+            introCtx.fillText('Passaggi', 5, 20);
+            introCtx.fillText('N (Input)', width - 50, height - 10);
+
+            // Draw curves up to current N
+            const maxVal = Math.max(N*N*2, 100);
+
+            // Linear O(N)
+            drawCurve(x => x, '#10b981', width, height, N, maxVal);
+            // Quadratic O(N^2)
+            drawCurve(x => x*x, '#06b6d4', width, height, N, maxVal);
+            // Exponential 2^N
+            drawCurve(x => Math.pow(2, x), '#f59e0b', width, height, N, maxVal);
+        }
+
+        function drawCurve(fn, color, w, h, currentN, maxY) {
+            introCtx.strokeStyle = color;
+            introCtx.lineWidth = 2.5;
+            introCtx.beginPath();
+
+            const originX = 40;
+            const originY = h - 30;
+            const usableW = w - 60;
+            const usableH = h - 50;
+
+            for(let x = 1; x <= 20; x++) {
+                const px = originX + (x / 20) * usableW;
+                const val = fn(x);
+                const py = originY - Math.min(val / maxY, 1) * usableH;
+
+                if(x === 1) introCtx.moveTo(px, py);
+                else introCtx.lineTo(px, py);
+            }
+            introCtx.stroke();
+        }
+
+        introSlider.addEventListener('input', updateIntroChart);
+
+        /* ================= MODULE 1: CLASS P (BUBBLE SORT) ================= */
+        let pArray = [];
+        let pI = 0, pJ = 0;
+        let pComparisons = 0, pSwaps = 0;
+        let pTimer = null;
+        let pIsPlaying = false;
+
+        function resetP() {
+            clearInterval(pTimer);
+            pIsPlaying = false;
+            document.getElementById('p-play-btn').innerHTML = '<i class="fa-solid fa-play"></i>';
+            pArray = Array.from({length: 16}, () => Math.floor(Math.random() * 85) + 15);
+            pI = 0;
+            pJ = 0;
+            pComparisons = 0;
+            pSwaps = 0;
+            document.getElementById('p-status').innerText = 'Pronto';
+            renderPBars();
+        }
+
+        function renderPBars(activeIdx1 = -1, activeIdx2 = -1) {
+            const container = document.getElementById('p-bars-container');
+            container.innerHTML = '';
+            
+            pArray.forEach((val, idx) => {
+                const bar = document.createElement('div');
+                bar.className = 'flex-1 rounded-t-lg transition-all duration-150 flex items-center justify-center text-[10px] font-bold text-slate-900';
+                bar.style.height = val + '%';
+
+                if(idx === activeIdx1 || idx === activeIdx2) {
+                    bar.className += ' bg-amber-400 scale-105 shadow-lg shadow-amber-500/50';
+                } else {
+                    bar.className += ' bg-emerald-500';
+                }
+
+                container.appendChild(bar);
+            });
+
+            document.getElementById('p-comparisons').innerText = pComparisons;
+            document.getElementById('p-swaps').innerText = pSwaps;
+        }
+
+        function stepP() {
+            if (pI >= pArray.length) {
+                document.getElementById('p-status').innerText = 'Completato!';
+                clearInterval(pTimer);
+                pIsPlaying = false;
+                document.getElementById('p-play-btn').innerHTML = '<i class="fa-solid fa-play"></i>';
+                renderPBars();
+                return false;
+            }
+
+            pComparisons++;
+            if (pArray[pJ] > pArray[pJ + 1]) {
+                let temp = pArray[pJ];
+                pArray[pJ] = pArray[pJ + 1];
+                pArray[pJ + 1] = temp;
+                pSwaps++;
+            }
+
+            renderPBars(pJ, pJ + 1);
+
+            pJ++;
+            if (pJ >= pArray.length - pI - 1) {
+                pJ = 0;
+                pI++;
+            }
+
+            return true;
+        }
+
+        function togglePlayP() {
+            if (pIsPlaying) {
+                clearInterval(pTimer);
+                pIsPlaying = false;
+                document.getElementById('p-play-btn').innerHTML = '<i class="fa-solid fa-play"></i>';
+                document.getElementById('p-status').innerText = 'In pausa';
+            } else {
+                pIsPlaying = true;
+                document.getElementById('p-play-btn').innerHTML = '<i class="fa-solid fa-pause"></i>';
+                document.getElementById('p-status').innerText = 'In esecuzione...';
+                const speed = 520 - parseInt(document.getElementById('p-speed').value);
+                pTimer = setInterval(() => {
+                    if (!stepP()) clearInterval(pTimer);
+                }, speed);
+            }
+        }
+
+        /* ================= MODULE 2: CLASS P-COMPLETE (CVP) ================= */
+        let cvpInputs = [true, false, true, true];
+        let cvpStep = 0;
+        let cvpTimer = null;
+        let cvpIsPlaying = false;
+
+        const cvpCanvas = document.getElementById('cvpCanvas');
+        const cvpCtx = cvpCanvas.getContext('2d');
+
+        function resetCVP() {
+            clearInterval(cvpTimer);
+            cvpIsPlaying = false;
+            document.getElementById('cvp-play-btn').innerHTML = '<i class="fa-solid fa-play"></i>';
+            cvpStep = 0;
+            document.getElementById('cvp-step-text').innerText = '0 / 3';
+            document.getElementById('cvp-output-text').innerText = 'In attesa...';
+            document.getElementById('cvp-output-text').className = 'text-slate-400';
+            renderCVP();
+        }
+
+        function renderCVP() {
+            const w = cvpCanvas.width = cvpCanvas.parentElement.clientWidth;
+            const h = cvpCanvas.height = cvpCanvas.parentElement.clientHeight;
+
+            cvpCtx.clearRect(0, 0, w, h);
+
+            // Layer positions
+            const x0 = 60, x1 = w * 0.38, x2 = w * 0.68, x3 = w * 0.88;
+
+            // Gate positions
+            const gatesLayer1 = [
+                { y: h * 0.25, type: 'AND', val: cvpInputs[0] && cvpInputs[1] },
+                { y: h * 0.75, type: 'OR',  val: cvpInputs[2] || cvpInputs[3] }
+            ];
+
+            const gateLayer2 = { y: h * 0.5, type: 'AND', val: gatesLayer1[0].val && gatesLayer1[1].val };
+
+            // Draw Connections
+            // Level 0 -> Level 1
+            drawWire(x0, h * 0.18, x1, gatesLayer1[0].y - 10, cvpInputs[0], cvpStep >= 1);
+            drawWire(x0, h * 0.32, x1, gatesLayer1[0].y + 10, cvpInputs[1], cvpStep >= 1);
+            drawWire(x0, h * 0.68, x1, gatesLayer1[1].y - 10, cvpInputs[2], cvpStep >= 1);
+            drawWire(x0, h * 0.82, x1, gatesLayer1[1].y + 10, cvpInputs[3], cvpStep >= 1);
+
+            // Level 1 -> Level 2
+            drawWire(x1 + 50, gatesLayer1[0].y, x2, gateLayer2.y - 12, gatesLayer1[0].val, cvpStep >= 2);
+            drawWire(x1 + 50, gatesLayer1[1].y, x2, gateLayer2.y + 12, gatesLayer1[1].val, cvpStep >= 2);
+
+            // Level 2 -> Output
+            drawWire(x2 + 50, gateLayer2.y, x3, gateLayer2.y, gateLayer2.val, cvpStep >= 3);
+
+            // Draw Interactive Input Nodes
+            const inputY = [h * 0.18, h * 0.32, h * 0.68, h * 0.82];
+            inputY.forEach((y, i) => {
+                cvpCtx.fillStyle = cvpInputs[i] ? '#10b981' : '#64748b';
+                cvpCtx.beginPath();
+                cvpCtx.arc(x0, y, 16, 0, Math.PI * 2);
+                cvpCtx.fill();
+                cvpCtx.strokeStyle = '#334155';
+                cvpCtx.lineWidth = 2;
+                cvpCtx.stroke();
+
+                cvpCtx.fillStyle = '#ffffff';
+                cvpCtx.font = 'bold 10px sans-serif';
+                cvpCtx.textAlign = 'center';
+                cvpCtx.fillText(cvpInputs[i] ? 'VERO' : 'FALSO', x0, y + 3);
+                cvpCtx.fillText(`IN ${i+1}`, x0 - 35, y + 3);
+            });
+
+            // Draw Gates
+            if(cvpStep >= 1) {
+                drawGateNode(x1 + 25, gatesLayer1[0].y, 'AND', gatesLayer1[0].val);
+                drawGateNode(x1 + 25, gatesLayer1[1].y, 'OR', gatesLayer1[1].val);
+            } else {
+                drawGateNode(x1 + 25, gatesLayer1[0].y, 'AND', null);
+                drawGateNode(x1 + 25, gatesLayer1[1].y, 'OR', null);
+            }
+
+            if(cvpStep >= 2) {
+                drawGateNode(x2 + 25, gateLayer2.y, 'AND', gateLayer2.val);
+            } else {
+                drawGateNode(x2 + 25, gateLayer2.y, 'AND', null);
+            }
+
+            // Output status
+            if(cvpStep >= 3) {
+                const finalVal = gateLayer2.val;
+                document.getElementById('cvp-output-text').innerText = finalVal ? 'VERO (1)' : 'FALSO (0)';
+                document.getElementById('cvp-output-text').className = finalVal ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
+            }
+        }
+
+        function drawGateNode(x, y, type, computedVal) {
+            cvpCtx.fillStyle = computedVal === null ? '#1e293b' : (computedVal ? '#06b6d4' : '#475569');
+            cvpCtx.strokeStyle = '#0284c7';
+            cvpCtx.lineWidth = 2;
+            cvpCtx.beginPath();
+            cvpCtx.roundRect(x - 25, y - 20, 50, 40, 8);
+            cvpCtx.fill();
+            cvpCtx.stroke();
+
+            cvpCtx.fillStyle = '#ffffff';
+            cvpCtx.font = 'bold 12px sans-serif';
+            cvpCtx.textAlign = 'center';
+            cvpCtx.fillText(type, x, y + 4);
+        }
+
+        function drawWire(x1, y1, x2, y2, stateVal, activeStep) {
+            cvpCtx.strokeStyle = !activeStep ? '#334155' : (stateVal ? '#10b981' : '#f43f5e');
+            cvpCtx.lineWidth = activeStep ? 3 : 1.5;
+            cvpCtx.beginPath();
+            cvpCtx.moveTo(x1, y1);
+            cvpCtx.lineTo((x1 + x2) / 2, y1);
+            cvpCtx.lineTo((x1 + x2) / 2, y2);
+            cvpCtx.lineTo(x2, y2);
+            cvpCtx.stroke();
+        }
+
+        function stepCVP() {
+            if(cvpStep < 3) {
+                cvpStep++;
+                document.getElementById('cvp-step-text').innerText = `${cvpStep} / 3`;
+                renderCVP();
+                return true;
+            }
+            return false;
+        }
+
+        function togglePlayCVP() {
+            if(cvpIsPlaying) {
+                clearInterval(cvpTimer);
+                cvpIsPlaying = false;
+                document.getElementById('cvp-play-btn').innerHTML = '<i class="fa-solid fa-play"></i>';
+            } else {
+                cvpIsPlaying = true;
+                document.getElementById('cvp-play-btn').innerHTML = '<i class="fa-solid fa-pause"></i>';
+                cvpTimer = setInterval(() => {
+                    if(!stepCVP()) {
+                        clearInterval(cvpTimer);
+                        cvpIsPlaying = false;
+                        document.getElementById('cvp-play-btn').innerHTML = '<i class="fa-solid fa-play"></i>';
+                    }
+                }, 800);
+            }
+        }
+
+        // Click event on CVP Canvas to toggle inputs
+        cvpCanvas.addEventListener('click', (e) => {
+            const rect = cvpCanvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            const h = cvpCanvas.height;
+            const x0 = 60;
+            const inputY = [h * 0.18, h * 0.32, h * 0.68, h * 0.82];
+
+            inputY.forEach((y, i) => {
+                const dist = Math.hypot(clickX - x0, clickY - y);
+                if(dist < 20) {
+                    cvpInputs[i] = !cvpInputs[i];
+                    resetCVP();
+                }
+            });
+        });
+
+        /* ================= MODULE 3: CLASS NP (GRAPH COLORING) ================= */
+        const npCanvas = document.getElementById('npCanvas');
+        const npCtx = npCanvas.getContext('2d');
+
+        let npNodes = [
+            { x: 0.2, y: 0.3, color: 0 },
+            { x: 0.5, y: 0.2, color: 0 },
+            { x: 0.8, y: 0.3, color: 0 },
+            { x: 0.35, y: 0.7, color: 0 },
+            { x: 0.65, y: 0.7, color: 0 }
+        ];
+
+        const npEdges = [
+            [0, 1], [1, 2], [0, 3], [1, 3], [1, 4], [2, 4], [3, 4]
+        ];
+
+        const colorPalette = ['#475569', '#ef4444', '#10b981', '#3b82f6'];
+        let npMode = 'search'; // 'search' or 'verify'
+        let npTries = 0;
+        let npTimer = null;
+        let npIsSearching = false;
+
+        function setNPMode(mode) {
+            npMode = mode;
+            resetNP();
+
+            if(mode === 'search') {
+                document.getElementById('np-btn-search').className = 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 text-white shadow';
+                document.getElementById('np-btn-verify').className = 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700';
+                document.getElementById('np-controls-search').classList.remove('hidden');
+                document.getElementById('np-controls-verify').classList.add('hidden');
+            } else {
+                document.getElementById('np-btn-verify').className = 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 text-white shadow';
+                document.getElementById('np-btn-search').className = 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700';
+                document.getElementById('np-controls-verify').classList.remove('hidden');
+                document.getElementById('np-controls-search').classList.add('hidden');
+            }
+        }
+
+        function resetNP() {
+            clearInterval(npTimer);
+            npIsSearching = false;
+            npTries = 0;
+            document.getElementById('np-tries-count').innerText = '0';
+            document.getElementById('np-verify-badge').classList.add('hidden');
+            npNodes.forEach(n => n.color = 0);
+            renderNPGraph();
+        }
+
+        function renderNPGraph(conflicts = []) {
+            const w = npCanvas.width = npCanvas.parentElement.clientWidth;
+            const h = npCanvas.height = npCanvas.parentElement.clientHeight;
+
+            npCtx.clearRect(0, 0, w, h);
+
+            // Draw Edges
+            npEdges.forEach(([i, j]) => {
+                const n1 = npNodes[i], n2 = npNodes[j];
+                const isConflict = conflicts.some(c => (c[0] === i && c[1] === j) || (c[0] === j && c[1] === i));
+
+                npCtx.strokeStyle = isConflict ? '#ef4444' : '#334155';
+                npCtx.lineWidth = isConflict ? 4 : 2;
+                npCtx.beginPath();
+                npCtx.moveTo(n1.x * w, n1.y * h);
+                npCtx.lineTo(n2.x * w, n2.y * h);
+                npCtx.stroke();
+            });
+
+            // Draw Nodes
+            npNodes.forEach((n, idx) => {
+                npCtx.fillStyle = colorPalette[n.color];
+                npCtx.beginPath();
+                npCtx.arc(n.x * w, n.y * h, 20, 0, Math.PI * 2);
+                npCtx.fill();
+                npCtx.strokeStyle = '#0f172a';
+                npCtx.lineWidth = 3;
+                npCtx.stroke();
+
+                npCtx.fillStyle = '#ffffff';
+                npCtx.font = 'bold 12px sans-serif';
+                npCtx.textAlign = 'center';
+                npCtx.fillText(idx + 1, n.x * w, n.y * h + 4);
+            });
+        }
+
+        function checkNPValidity() {
+            let conflicts = [];
+            npEdges.forEach(([i, j]) => {
+                if(npNodes[i].color !== 0 && npNodes[i].color === npNodes[j].color) {
+                    conflicts.push([i, j]);
+                }
+            });
+            return conflicts;
+        }
+
+        function togglePlayNP() {
+            if(npIsSearching) {
+                clearInterval(npTimer);
+                npIsSearching = false;
+                document.getElementById('np-play-btn').innerHTML = '<i class="fa-solid fa-play mr-1.5"></i> Cerca Soluzione';
+            } else {
+                npIsSearching = true;
+                document.getElementById('np-play-btn').innerHTML = '<i class="fa-solid fa-pause mr-1.5"></i> Pausa';
+                
+                npTimer = setInterval(() => {
+                    npTries++;
+                    document.getElementById('np-tries-count').innerText = npTries;
+                    
+                    // Assign random colors
+                    npNodes.forEach(n => n.color = Math.floor(Math.random() * 3) + 1);
+                    const conflicts = checkNPValidity();
+                    renderNPGraph(conflicts);
+
+                    if(conflicts.length === 0) {
+                        clearInterval(npTimer);
+                        npIsSearching = false;
+                        document.getElementById('np-play-btn').innerHTML = '<i class="fa-solid fa-check mr-1.5"></i> Soluzione Trovata!';
+                    }
+                }, 100);
+            }
+        }
+
+        function verifyUserColoring() {
+            const anyUncolored = npNodes.some(n => n.color === 0);
+            const badge = document.getElementById('np-verify-badge');
+
+            if(anyUncolored) {
+                badge.className = 'absolute top-4 right-4 px-4 py-2 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
+                badge.innerText = 'Colora tutti i nodi prima di verificare!';
+                badge.classList.remove('hidden');
+                return;
+            }
+
+            const conflicts = checkNPValidity();
+            renderNPGraph(conflicts);
+
+            badge.classList.remove('hidden');
+            if(conflicts.length === 0) {
+                badge.className = 'absolute top-4 right-4 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-lg';
+                badge.innerText = '✓ SOLUZIONE VALIDA! Verificata in meno di 1 millisecondo!';
+            } else {
+                badge.className = 'absolute top-4 right-4 px-4 py-2 rounded-xl text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 shadow-lg';
+                badge.innerText = `✕ NON VALIDA: Trovati ${conflicts.length} adiacenze di colore uguale!`;
+            }
+        }
+
+        // Click event to change node colors manually in verification mode
+        npCanvas.addEventListener('click', (e) => {
+            if(npMode !== 'verify') return;
+            const rect = npCanvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            const w = npCanvas.width, h = npCanvas.height;
+
+            npNodes.forEach(n => {
+                const dist = Math.hypot(clickX - n.x * w, clickY - n.y * h);
+                if(dist < 25) {
+                    n.color = (n.color % 3) + 1; // Cycle colors 1, 2, 3
+                    document.getElementById('np-verify-badge').classList.add('hidden');
+                    renderNPGraph();
+                }
+            });
+        });
+
+        /* ================= MODULE 4: NP-HARD (TSP) ================= */
+        const tspCanvas = document.getElementById('tspCanvas');
+        const tspCtx = tspCanvas.getContext('2d');
+
+        let tspCities = [];
+        let tspPath = [];
+
+        function generateRandomCities(count) {
+            tspCities = [];
+            tspPath = [];
+            for(let i = 0; i < count; i++) {
+                tspCities.push({
+                    x: Math.random() * 0.8 + 0.1,
+                    y: Math.random() * 0.8 + 0.1
+                });
+            }
+            updateTSPStats();
+            renderTSP();
+        }
+
+        function clearTSP() {
+            tspCities = [];
+            tspPath = [];
+            updateTSPStats();
+            renderTSP();
+        }
+
+        function updateTSPStats() {
+            const N = tspCities.length;
+            document.getElementById('tsp-count').innerText = N;
+
+            if(N < 2) {
+                document.getElementById('tsp-routes').innerText = '0';
+                document.getElementById('tsp-time-estimate').innerText = '0 secondi';
+                return;
+            }
+
+            // Calculate (N-1)! / 2 for symmetric TSP routes
+            let fact = 1;
+            for(let i = 1; i < N; i++) fact *= i;
+            const routes = fact / 2;
+
+            document.getElementById('tsp-routes').innerText = routes > 1e12 ? routes.toExponential(3) : Math.round(routes).toLocaleString();
+
+            // Time estimate at 1 Billion evaluations/sec
+            const seconds = routes / 1e9;
+            let timeStr = '';
+            if(seconds < 0.001) timeStr = 'Istantaneo (< 1ms)';
+            else if(seconds < 60) timeStr = seconds.toFixed(3) + ' secondi';
+            else if(seconds < 3600) timeStr = (seconds / 60).toFixed(1) + ' minuti';
+            else if(seconds < 86400 * 365) timeStr = (seconds / 86400).toFixed(1) + ' giorni';
+            else timeStr = (seconds / (86400 * 365)).toExponential(2) + ' ANNI!';
+
+            document.getElementById('tsp-time-estimate').innerText = timeStr;
+        }
+
+        function renderTSP() {
+            const w = tspCanvas.width = tspCanvas.parentElement.clientWidth;
+            const h = tspCanvas.height = tspCanvas.parentElement.clientHeight;
+
+            tspCtx.clearRect(0, 0, w, h);
+
+            // Draw Path if exists
+            if(tspPath.length > 1) {
+                tspCtx.strokeStyle = '#ef4444';
+                tspCtx.lineWidth = 2.5;
+                tspCtx.beginPath();
+                for(let i = 0; i < tspPath.length; i++) {
+                    const c = tspCities[tspPath[i]];
+                    if(i === 0) tspCtx.moveTo(c.x * w, c.y * h);
+                    else tspCtx.lineTo(c.x * w, c.y * h);
+                }
+                // Close loop
+                const first = tspCities[tspPath[0]];
+                tspCtx.lineTo(first.x * w, first.y * h);
+                tspCtx.stroke();
+            }
+
+            // Draw Cities
+            tspCities.forEach((c, idx) => {
+                tspCtx.fillStyle = '#f43f5e';
+                tspCtx.beginPath();
+                tspCtx.arc(c.x * w, c.y * h, 8, 0, Math.PI * 2);
+                tspCtx.fill();
+                tspCtx.strokeStyle = '#ffffff';
+                tspCtx.lineWidth = 2;
+                tspCtx.stroke();
+
+                tspCtx.fillStyle = '#cbd5e1';
+                tspCtx.font = 'bold 10px sans-serif';
+                tspCtx.fillText(`Città ${idx+1}`, c.x * w + 12, c.y * h + 4);
+            });
+        }
+
+        // TSP Nearest Neighbor Heuristic
+        function solveTSPHeuristic() {
+            if(tspCities.length < 2) return;
+            let unvisited = Array.from({length: tspCities.length}, (_, i) => i);
+            tspPath = [unvisited.shift()];
+
+            while(unvisited.length > 0) {
+                const current = tspCities[tspPath[tspPath.length - 1]];
+                let nearestIdx = -1;
+                let minDist = Infinity;
+
+                unvisited.forEach((uIdx, arrayIdx) => {
+                    const candidate = tspCities[uIdx];
+                    const dist = Math.hypot(candidate.x - current.x, candidate.y - current.y);
+                    if(dist < minDist) {
+                        minDist = dist;
+                        nearestIdx = arrayIdx;
+                    }
+                });
+
+                tspPath.push(unvisited.splice(nearestIdx, 1)[0]);
+            }
+
+            renderTSP();
+        }
+
+        // TSP Brute Force (Exact)
+        function solveTSPBruteForce() {
+            if(tspCities.length < 2) return;
+            if(tspCities.length > 11) {
+                alert("Troppe città per la Forza Bruta nel browser! Prova con l'Euristica o seleziona un numero inferiore a 11 città per evitare il blocco del browser.");
+                return;
+            }
+
+            const indices = Array.from({length: tspCities.length}, (_, i) => i);
+            let bestDist = Infinity;
+            let bestPath = [];
+
+            function permute(arr, m = []) {
+                if (arr.length === 0) {
+                    let d = 0;
+                    for(let i = 0; i < m.length - 1; i++) {
+                        d += Math.hypot(tspCities[m[i]].x - tspCities[m[i+1]].x, tspCities[m[i]].y - tspCities[m[i+1]].y);
+                    }
+                    d += Math.hypot(tspCities[m[m.length-1]].x - tspCities[m[0]].x, tspCities[m[m.length-1]].y - tspCities[m[0]].y);
+
+                    if(d < bestDist) {
+                        bestDist = d;
+                        bestPath = [...m];
+                    }
+                } else {
+                    for (let i = 0; i < arr.length; i++) {
+                        let curr = arr.slice();
+                        let next = curr.splice(i, 1);
+                        permute(curr.slice(), m.concat(next));
+                    }
+                }
+            }
+
+            permute(indices);
+            tspPath = bestPath;
+            renderTSP();
+        }
+
+        tspCanvas.addEventListener('click', (e) => {
+            const rect = tspCanvas.getBoundingClientRect();
+            const clickX = (e.clientX - rect.left) / tspCanvas.width;
+            const clickY = (e.clientY - rect.top) / tspCanvas.height;
+
+            tspCities.push({ x: clickX, y: clickY });
+            tspPath = [];
+            updateTSPStats();
+            renderTSP();
+        });
+
+        /* ================= MODULE 5: VENN DIAGRAM INFO ================= */
+        const vennInfoData = {
+            'p': {
+                badge: 'Classe P',
+                badgeClass: 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+                title: 'Classe P (Polynomial Time)',
+                desc: 'Problemi risolvibili in modo efficiente ed rapido da un computer normale. Esempi: ordinamento di liste, ricerca di percorsi minimi con GPS, operazioni aritmetiche.'
+            },
+            'pcomplete': {
+                badge: 'Classe P-Completo',
+                badgeClass: 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30',
+                title: 'P-Completo (Inerentemente Sequenziali)',
+                desc: 'I problemi più ostici all\'interno della classe P. Possono essere risolti velocemente su un singolo processore, ma NON possono essere velocizzati usando migliaia di processori in parallelo a causa delle loro dipendenze sequenziali passo-passo.'
+            },
+            'np': {
+                badge: 'Classe NP',
+                badgeClass: 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30',
+                title: 'Classe NP (Nondeterministic Polynomial)',
+                desc: 'Problemi dove TROVARE la soluzione può richiedere tentativi interminabili, ma VERIFICARE se un tentativo è valido richiede pochissimi passaggi. Tutti i problemi in P fanno anche parte di NP!'
+            },
+            'npcomplete': {
+                badge: 'Classe NP-Completo',
+                badgeClass: 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-pink-500/20 text-pink-400 border border-pink-500/30',
+                title: 'NP-Completo (L\'Intersezione fatale)',
+                desc: 'I problemi più difficili in NP. Se qualcuno trovasse un algoritmo veloce per risolvere un SINGOLO problema NP-Completo, allora TUTTI i problemi NP diventerebbero facili (P = NP)!'
+            },
+            'nphard': {
+                badge: 'Classe NP-Hard',
+                badgeClass: 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30',
+                title: 'NP-Hard (I più complessi in assoluto)',
+                desc: 'Problemi complessi almeno quanto i problemi NP-Completi, ma che potrebbero non essere nemmeno in NP (cioè potrebbe essere persino difficilissimo verificare una soluzione proponibile). Esempio: Il problema del Commesso Viaggiatore (TSP).'
+            }
+        };
+
+        function showVennInfo(key) {
+            const data = vennInfoData[key];
+            if(data) {
+                document.getElementById('venn-badge').className = data.badgeClass;
+                document.getElementById('venn-badge').innerText = data.badge;
+                document.getElementById('venn-title').innerText = data.title;
+                document.getElementById('venn-desc').innerText = data.desc;
+            }
+        }
+
+        function resizeCanvases() {
+            updateIntroChart();
+            renderPBars();
+            renderCVP();
+            renderNPGraph();
+            renderTSP();
+        }
+
+        window.addEventListener('resize', resizeCanvases);
+
+        // Window onload initializations
+        window.onload = function() {
+            updateIntroChart();
+            resetP();
+            resetCVP();
+            resetNP();
+            generateRandomCities(6);
+        };
+    </script>
+</body>
+</html>
